@@ -147,7 +147,7 @@ fun CameraContent() {
     val resolutionSelector = remember {
         ResolutionSelector.Builder()
             .setResolutionStrategy(
-                ResolutionStrategy(Size(1280, 720), ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER)
+                ResolutionStrategy(Size(3840, 2160), ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER)
             ).build()
     }
     val backPreview = remember {
