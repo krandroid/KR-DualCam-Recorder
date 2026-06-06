@@ -60,22 +60,30 @@ import com.example.ui.theme.DarkUI
 import com.example.ui.theme.PurpleNeon
 import androidx.compose.material.icons.filled.Videocam
 
+private fun getRequiredPermissions(): Array<String> {
+    val permissions = mutableListOf(
+        Manifest.permission.CAMERA,
+        Manifest.permission.RECORD_AUDIO
+    )
+
+    // Logika penyesuaian versi Android
+    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+        // Android 9 dan ke bawah masih butuh Write External Storage
+        permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        // Android 13 (API 33) ke atas butuh izin spesifik untuk membaca galeri
+        // Tambahkan ini JIKA aplikasi Anda punya fitur melihat hasil rekaman di dalam aplikasi
+        permissions.add(Manifest.permission.READ_MEDIA_VIDEO)
+    }
+    
+    return permissions.toTypedArray()
+}
+
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun DualCameraScreen() {
     val context = LocalContext.current
-    val permissions = remember {
-        val list = mutableListOf(
-            Manifest.permission.CAMERA,
-            Manifest.permission.RECORD_AUDIO
-        )
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            list.add(Manifest.permission.READ_MEDIA_VIDEO)
-        } else {
-            list.add(Manifest.permission.READ_EXTERNAL_STORAGE)
-        }
-        list
-    }
+    val permissions = remember { getRequiredPermissions().toList() }
     
     val permissionState = rememberMultiplePermissionsState(permissions = permissions)
 
@@ -633,12 +641,12 @@ fun CameraContent() {
                                     isRecording = false
                                 } else {
                                     // Start Video Capture using backVideoCapture configuration and MediaStore setup
-                                    val name = "KR_DualCam_" + SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(System.currentTimeMillis()) + ".mp4"
+                                    val name = "KR_DualCam_${System.currentTimeMillis()}.mp4"
                                     val contentValues = ContentValues().apply {
                                         put(MediaStore.MediaColumns.DISPLAY_NAME, name)
                                         put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
                                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                                            put(MediaStore.Video.Media.RELATIVE_PATH, "DCIM/KR_DualCam")
+                                            put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/KR_DualCam")
                                         }
                                     }
 
@@ -664,7 +672,7 @@ fun CameraContent() {
                                                         if (event.hasError()) {
                                                             Toast.makeText(context, "Recording completed with warning", Toast.LENGTH_SHORT).show()
                                                         } else {
-                                                            Toast.makeText(context, "Saved to Gallery (/DCIM/KR_DualCam)", Toast.LENGTH_LONG).show()
+                                                            Toast.makeText(context, "Saved to Gallery (/Movies/KR_DualCam)", Toast.LENGTH_LONG).show()
                                                         }
                                                         isRecording = false
                                                         recordingDuration = 0
