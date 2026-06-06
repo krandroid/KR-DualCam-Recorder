@@ -1,0 +1,6 @@
+{
+  "name": "KR DualCam Recorder",
+  "description": "Simultaneous front and back camera recording for Poco F7",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
