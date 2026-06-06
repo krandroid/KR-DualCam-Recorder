@@ -19,6 +19,9 @@ import androidx.camera.video.Recording
 import androidx.camera.video.VideoCapture
 import androidx.camera.video.VideoRecordEvent
 import androidx.camera.view.PreviewView
+import androidx.camera.core.resolutionselector.ResolutionSelector
+import androidx.camera.core.resolutionselector.ResolutionStrategy
+import android.util.Size
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -141,8 +144,22 @@ fun CameraContent() {
     val lifecycleOwner = LocalLifecycleOwner.current
 
     // Set up direct CameraX use cases so they bind in true Concurrent Mode
-    val backPreview = remember { Preview.Builder().build() }
-    val frontPreview = remember { Preview.Builder().build() }
+    val resolutionSelector = remember {
+        ResolutionSelector.Builder()
+            .setResolutionStrategy(
+                ResolutionStrategy(Size(1280, 720), ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER)
+            ).build()
+    }
+    val backPreview = remember {
+        Preview.Builder()
+            .setResolutionSelector(resolutionSelector)
+            .build()
+    }
+    val frontPreview = remember {
+        Preview.Builder()
+            .setResolutionSelector(resolutionSelector)
+            .build()
+    }
     
     val backVideoCapture: VideoCapture<Recorder> = remember {
         val recorder = Recorder.Builder()
